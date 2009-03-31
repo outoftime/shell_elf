@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+gem 'daemons'
+require 'daemons'
+
+Daemons.run(File.join(File.dirname(File.dirname(__FILE__)), 'script', 'shell-elf-listener'))

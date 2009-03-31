@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+gem 'starling-starling'
+gem 'choice'
+require 'starling'
+require 'choice'
+require File.join(File.dirname(File.dirname(__FILE__)), 'lib', 'shell_elf')
+
+Choice.options do 
+  option :queue do
+    short '-q'
+    long '--queue=QUEUE'
+    desc 'Name of starling queue to process'
+    default 'shell_elf'
+  end
+
+  option :host do
+    short '-h'
+    long '--host=HOST'
+    desc 'Host at which to connect to Starling'
+    default '127.0.0.1'
+  end
+
+  option :port do
+    short '-p'
+    long '--port=PORT'
+    desc 'Port on which to connect to Starling'
+    default '22122'
+  end
+
+  option :log_file do
+    long '--log-file=LOG_FILE'
+    desc 'File for logging output'
+  end
+
+  option :log_level do
+    long '--log-level=LOG_LEVEL'
+    desc 'Log level'
+    valid Logger::SEV_LABEL
+    default 'WARN'
+  end
+end
+
+ShellElf.logger = Logger.new(Choice.choices[:log_file])
+ShellElf.logger.progname = "shell_elf[#{Choice.choices[:queue]}]"
+ShellElf.logger.level = Logger.const_get(Choice.choices[:log_level])
+
+ShellElf.logger.info("Starting ShellElf...")
+killed = false
+trap('INT') { killed = true }
+trap('TERM') { killed = true }
+queue = Starling.new("#{Choice.choices[:host]}:#{Choice.choices[:port]}")
+until killed
+  params = queue.fetch(Choice.choices[:queue])
+  if params
+    ShellElf::Batch.execute(params)
+  else
+    sleep Starling::WAIT_TIME
+  end
+end
+ShellElf.logger.info("Exiting...")
