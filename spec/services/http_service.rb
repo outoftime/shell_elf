@@ -1,8 +1,9 @@
 require 'rubygems'
 gem 'sinatra'
 require 'fileutils'
+require 'tmpdir'
 require 'sinatra'
 
 post '/touch/:filename' do
-  FileUtils.touch(File.join(File.dirname(File.dirname(__FILE__)), 'sandbox', params[:filename]))
+  FileUtils.touch(File.join(Dir.tmpdir, 'shell_elf', 'sandbox', params[:filename]))
 end

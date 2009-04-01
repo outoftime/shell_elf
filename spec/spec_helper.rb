@@ -2,6 +2,7 @@ require 'rubygems'
 gem 'rspec'
 gem 'starling-starling'
 require 'fileutils'
+require 'tmpdir'
 require 'spec'
 require 'starling'
 require 'ruby-debug'
@@ -12,19 +13,21 @@ Spec::Runner.configure do |config|
     begin
       @starling.stats
     rescue
-      STDERR.puts('Starling is not responding! Run rake spec:environment to start HTTP services.')
-      exit(1)
+      abort('Starling is not responding! Run rake spec:environment to start HTTP services.')
     end
   end
 
   config.before(:each) do
     root = File.expand_path(File.dirname(File.dirname(__FILE__)))
+    tmp_dir = File.join(Dir.tmpdir, 'shell_elf')
+    FileUtils.mkdir_p(File.join(tmp_dir, 'log'))
+    FileUtils.mkdir_p(File.join(tmp_dir, 'sandbox'))
     @shell_elf_pid = fork do
-      exec("#{File.join(root, 'bin', 'shell-elf')} run -- -p 73787 -q shell_elf_test --log-file=#{File.join(root, 'spec', 'log', 'shell_elf.out')} --log-level=DEBUG")
+      exec("#{File.join(root, 'bin', 'shell-elf')} run -- -p 73787 -q shell_elf_test --log-file=#{File.join(tmp_dir, 'log', 'shell_elf.out')} --log-level=DEBUG")
     end
     Process.detach(@shell_elf_pid)
     @starling.delete('shell_elf_test')
-    for entry in Dir.glob(File.join(root, 'spec', 'sandbox', '*'))
+    for entry in Dir.glob(File.join(tmp_dir, 'sandbox', '*'))
       if File.file?(entry)
         FileUtils.rm_r(File.expand_path(entry))
       end
@@ -41,7 +44,7 @@ end
 
 module SpecHelper
   def sandbox(*path)
-    File.expand_path(File.join(File.dirname(__FILE__), 'sandbox', path))
+    File.expand_path(File.join(Dir.tmpdir, 'shell_elf', 'sandbox', path))
   end
 
   def starling_send_and_wait(params)
