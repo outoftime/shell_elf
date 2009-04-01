@@ -18,16 +18,8 @@ Spec::Runner.configure do |config|
   end
 
   config.before(:each) do
-    root = File.expand_path(File.dirname(File.dirname(__FILE__)))
-    tmp_dir = File.join(Dir.tmpdir, 'shell_elf')
-    FileUtils.mkdir_p(File.join(tmp_dir, 'log'))
-    FileUtils.mkdir_p(File.join(tmp_dir, 'sandbox'))
-    @shell_elf_pid = fork do
-      exec("#{File.join(root, 'bin', 'shell-elf')} run -- -p 73787 -q shell_elf_test --log-file=#{File.join(tmp_dir, 'log', 'shell_elf.out')} --log-level=DEBUG")
-    end
-    Process.detach(@shell_elf_pid)
     @starling.delete('shell_elf_test')
-    for entry in Dir.glob(File.join(tmp_dir, 'sandbox', '*'))
+    for entry in Dir.glob(File.join(Dir.tmpdir, 'shell_elf', 'sandbox', '*'))
       if File.file?(entry)
         FileUtils.rm_r(File.expand_path(entry))
       end
@@ -35,10 +27,7 @@ Spec::Runner.configure do |config|
   end
 
   config.after(:each) do
-    if @shell_elf_pid
-      Process.kill('TERM', @shell_elf_pid)
-      pid_wait(@shell_elf_pid)
-    end
+    @starling.delete('shell_elf_test')
   end
 end
 
@@ -69,7 +58,8 @@ module SpecHelper
     "http://localhost:7397/touch/#{filename}"
   end
 
-  def pid_wait(pid, timeout = 1)
+  def wait_for_exit(timeout = 1)
+    pid = shell_elf_pid
     (timeout * 100).times do
       begin
         Process.kill(0, pid)
@@ -79,5 +69,9 @@ module SpecHelper
       end
     end
     raise "Timed out waiting for pid #{pid} to end!"
+  end
+
+  def shell_elf_pid
+    File.open(File.join(Dir.tmpdir, 'shell_elf', 'log', 'shell-elf.pid')) { |f| f.read.to_i }
   end
 end

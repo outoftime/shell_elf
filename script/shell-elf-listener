@@ -63,6 +63,7 @@ trap('TERM', &signal_handler)
 until killed
   current = queue.fetch(Choice.choices[:queue])
   if current
+    ShellElf.logger.debug(current.inspect)
     ShellElf::Batch.execute(current)
   else
     sleep Starling::WAIT_TIME

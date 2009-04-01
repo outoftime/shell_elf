@@ -21,6 +21,7 @@ module ShellElf
     end
 
     def execute
+      return self if @commands.empty?
       if @commands.all? { |command| Job.execute(command).success? }
         if @success_postback
           ShellElf.logger.debug("Posting back to #{@success_postback}")
