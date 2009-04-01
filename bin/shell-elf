@@ -2,6 +2,9 @@
 
 require 'rubygems'
 gem 'daemons'
+require 'tmpdir'
 require 'daemons'
 
-Daemons.run(File.join(File.dirname(File.dirname(__FILE__)), 'script', 'shell-elf-listener'))
+Daemons.run(File.join(File.dirname(File.dirname(__FILE__)), 'script', 'shell-elf-listener'),
+            :dir_mode => :normal,
+            :dir => Dir.tmpdir)

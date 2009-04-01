@@ -1,0 +1,123 @@
+Shell Elf
+---------
+
+http://github.com/outoftime/shell_elf
+
+Shell Elf is a small, standalone daemon whose sole purpose is to read shell
+commands out of a Starling queue, execute them, and optionally POST back to an
+HTTP service on success or failure. Shell Elf is distributed as a RubyGem, but
+is not meant to be included as a library; rather, it contains the standalone
+`shell-elf` executable, which starts and stops the daemon.
+
+Features
+========
+
+* Send a single shell command or a batch of commands to be executed serially
+* Specify postback URLs for success and failure, so that your application can
+  be notified when batch has completed.
+* Gracefully catch TERM and INT signals, either finishing the current batch or
+  requeueing it for later processing before exiting.
+
+Usage
+=====
+
++++ Installation
+
+  sudo gem install outoftime-shell_elf --source=gems.github.com
+  
++++ Starting the daemon
+
+  shell-elf start -- [options]
+
+The following options are available; none are required:
+
+  * -q/--queue - name of the Starling queue to read from (default: shell_elf)
+  * -h/--host - hostname at which the Starling daemon is running (default: localhost)
+  * -p/--port - port on which the Starling daemon is listening (default: 22122)
+  * --log-file - full path to a log file (default: no logging)
+  * --log-level - level at which to log (default: WARN)
+
++++ Stopping the daemon
+
+  shell-elf stop
+
++++ Sending commands from your application
+
+  require 'rubygems'
+  gem 'starling-starling'
+  require 'starling'
+
+  starling = Starling.new('localhost:22122')
+
+  # send the single command `touch /tmp/hey`
+  starling.set('shell_elf', :command => ['touch', '/tmp/hey'])
+
+  # send the two commands `touch /tmp/one` followed by `touch /tmp/2`
+  starling.set('shell_elf', :commands => [['touch', '/tmp/one'], ['touch', '/tmp/two']])
+
+  # send a command with success/failure postbacks
+  starling.set('shell_elf', :command => ['touch', '/tmp/hey'],
+                            :options => { :success => { 'http://localhost:3000/command/success' },
+                                        { :failure => { 'http://localhost:3000/command/failure' }})
+
+  # send a command with instructions to requeue if the daemon is interrupted
+  starling.set('shell_elf', :command => ['sleep', '120'],
+                            :options => { :on_interrupt => :requeue })
+  
++++ A note about batches and postbacks
+
+If the postbacks are specified (you can specify neither, either, or both),
+ShellElf will send an HTTP POST request to the specified URL. The batch is
+considered successful if all of the commands exit with a status code of 0. If
+one of the commands in the batch exits with a non-zero status code, *the
+rest of the commands in the batch are not run*, and the failure postback will
+be sent. ShellElf waits until the postback request completes before retrieving
+the next batch from the queue.
+
+The ShellElf Client
+===================
+
+...doesn't exist. I'm a big fan of libraries presenting intuitive APIs to the
+application layer, but in this case a general-purpose client would be so
+trivial that it doesn't seem worth writing one. Further, I assume that in the
+general use case, applications will want to build task-specific APIs that wrap
+the task of shelling out via Starling. Having a further layer of abstraction
+doesn't seem to add much value.
+
+Dependencies
+============
+
+* escape
+* starling-starling
+* daemons
+* choice
+
+Contact and Futher Reading
+==========================
+
+Contact: Mat Brown <mat@patch.com>
+Further Reading: http://outofti.me/tagged/shell_elf
+
+The MIT License
+===============
+
+Copyright (c) 2009 Mat Brown
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+

@@ -1,5 +1,11 @@
 require 'fileutils'
 require 'tmpdir'
+require 'spec/rake/spectask'
+
+desc 'Run spec suite'
+Spec::Rake::SpecTask.new('spec') do |t|
+  t.spec_files = FileList['spec/**/*_spec.rb']
+end
 
 namespace :spec do
   desc "Start spec environment processes"

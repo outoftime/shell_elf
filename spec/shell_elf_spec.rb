@@ -104,6 +104,7 @@ describe 'ShellElf' do
   %w(TERM INT).each do |signal|
     describe "when SIG#{signal} sent" do 
       before :each do
+        starling_wait
         starling_send(:commands => [['kill', '-s', signal, shell_elf_pid.to_s], ['touch', sandbox('done')]])
         starling_send(:command => ['touch', sandbox('never_get_here')])
         wait_for_exit
@@ -121,6 +122,7 @@ describe 'ShellElf' do
     describe "when SIG#{signal} sent with requeue option" do
       before :each do
         @params = { :commands => [['kill', '-s', signal, shell_elf_pid.to_s], ['touch', sandbox('requeued')]], :options => { :on_interrupt => :requeue }}
+        starling_wait
         starling_send(@params)
         wait_for_exit
       end

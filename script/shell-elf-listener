@@ -47,26 +47,5 @@ ShellElf.logger.progname = "shell_elf[#{Choice.choices[:queue]}]"
 ShellElf.logger.level = Logger.const_get(Choice.choices[:log_level])
 
 ShellElf.logger.info("Starting ShellElf...")
-killed = false
-current = nil
-queue = Starling.new("#{Choice.choices[:host]}:#{Choice.choices[:port]}")
-signal_handler = proc do
-  if current && current[:options] && current[:options][:on_interrupt] == :requeue
-    queue.set(Choice.choices[:queue], current)
-    exit
-  else
-    killed = true
-  end
-end
-trap('INT', &signal_handler)
-trap('TERM', &signal_handler)
-until killed
-  current = queue.fetch(Choice.choices[:queue])
-  if current
-    ShellElf.logger.debug(current.inspect)
-    ShellElf::Batch.execute(current)
-  else
-    sleep Starling::WAIT_TIME
-  end
-end
+ShellElf::Runner.run(Choice.choices)
 ShellElf.logger.info("Exiting...")
