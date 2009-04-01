@@ -90,5 +90,22 @@ describe 'ShellElf' do
         File.exist?(sandbox('never_get_here')).should be_false
       end
     end
+
+    describe "when SIG#{signal} sent with requeue option" do
+      before :each do
+        @params = { :commands => [['kill', '-s', signal, @shell_elf_pid.to_s], ['touch', sandbox('requeued')]], :options => { :on_interrupt => :requeue }}
+        starling_send(@params)
+        pid_wait(@shell_elf_pid)
+        @shell_elf_pid = nil
+      end
+
+      it 'should trap the signal and requeue the job' do
+        @starling.fetch('shell_elf_test').should == @params
+      end
+
+      it 'should not finish the running command' do
+        File.exist?(sandbox('requeued')).should be_false
+      end
+    end
   end
 end

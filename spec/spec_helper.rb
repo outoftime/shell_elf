@@ -13,7 +13,7 @@ Spec::Runner.configure do |config|
     begin
       @starling.stats
     rescue
-      abort('Starling is not responding! Run rake spec:environment to start HTTP services.')
+      abort('Starling is not responding! Run rake spec:environment to start background services.')
     end
   end
 
