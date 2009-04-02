@@ -21,7 +21,7 @@ module ShellElf
 
     def run
       until @interrupted
-        if @current = starling.fetch(@options[:queue])
+        if starling && @current = starling.fetch(@options[:queue])
           ShellElf.logger.debug("RUNNER: #{@current.inspect}")
           ShellElf::Batch.execute(@current)
         else
@@ -54,7 +54,7 @@ module ShellElf
         @queue = nil
         delay ||= 0.125
         delay = delay *= 2 if delay < 1
-        retry
+        retry unless @interrupted
       end
     end
   end
