@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{shell_elf}
-  s.version = "0.9.0"
+  s.version = "0.9.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mat Brown"]
-  s.date = %q{2009-04-01}
+  s.date = %q{2009-04-02}
   s.default_executable = %q{shell-elf}
   s.description = %q{Daemon which executes shell commands read out of a Starling queue and optionally posts back to an HTTP server on success/failure}
   s.email = %q{mat@patch.com}
