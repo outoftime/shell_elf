@@ -1,5 +1,4 @@
-Shell Elf
----------
+= Shell Elf
 
 http://github.com/outoftime/shell_elf
 
@@ -10,7 +9,6 @@ is not meant to be included as a library; rather, it contains the standalone
 `shell-elf` executable, which starts and stops the daemon.
 
 Features
-========
 
 * Send a single shell command or a batch of commands to be executed serially
 * Specify postback URLs for success and failure, so that your application can
@@ -18,30 +16,29 @@ Features
 * Gracefully catch TERM and INT signals, either finishing the current batch or
   requeueing it for later processing before exiting.
 
-Usage
-=====
+== Usage
 
-+++ Installation
+=== Installation
 
   sudo gem install outoftime-shell_elf --source=gems.github.com
   
-+++ Starting the daemon
+=== Starting the daemon
 
   shell-elf start -- [options]
 
 The following options are available; none are required:
 
-  * -q/--queue - name of the Starling queue to read from (default: shell_elf)
-  * -h/--host - hostname at which the Starling daemon is running (default: localhost)
-  * -p/--port - port on which the Starling daemon is listening (default: 22122)
-  * --log-file - full path to a log file (default: no logging)
-  * --log-level - level at which to log (default: WARN)
+  [-q/--queue] name of the Starling queue to read from (default: shell_elf)
+  [-h/--host] hostname at which the Starling daemon is running (default: localhost)
+  [-p/--port] port on which the Starling daemon is listening (default: 22122)
+  [--log-file] full path to a log file (default: no logging)
+  [--log-level] level at which to log (default: WARN)
 
-+++ Stopping the daemon
+=== Stopping the daemon
 
   shell-elf stop
 
-+++ Sending commands from your application
+=== Sending commands from your application
 
   require 'rubygems'
   gem 'starling-starling'
@@ -64,7 +61,7 @@ The following options are available; none are required:
   starling.set('shell_elf', :command => ['sleep', '120'],
                             :options => { :on_interrupt => :requeue })
   
-+++ A note about batches and postbacks
+=== A note about batches and postbacks
 
 If the postbacks are specified (you can specify neither, either, or both),
 ShellElf will send an HTTP POST request to the specified URL. The batch is
@@ -74,8 +71,7 @@ rest of the commands in the batch are not run*, and the failure postback will
 be sent. ShellElf waits until the postback request completes before retrieving
 the next batch from the queue.
 
-The ShellElf Client
-===================
+== The ShellElf Client
 
 ...doesn't exist. I'm a big fan of libraries presenting intuitive APIs to the
 application layer, but in this case a general-purpose client would be so
@@ -84,22 +80,19 @@ general use case, applications will want to build task-specific APIs that wrap
 the task of shelling out via Starling. Having a further layer of abstraction
 doesn't seem to add much value.
 
-Dependencies
-============
+== Dependencies
 
 * escape
 * starling-starling
 * daemons
 * choice
 
-Contact and Futher Reading
-==========================
+== Contact and Futher Reading
 
 Contact: Mat Brown <mat@patch.com>
 Further Reading: http://outofti.me/tagged/shell_elf
 
-The MIT License
-===============
+== The MIT License
 
 Copyright (c) 2009 Mat Brown
 
