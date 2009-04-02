@@ -28,11 +28,11 @@ Features
 
 The following options are available; none are required:
 
-  [-q/--queue] name of the Starling queue to read from (default: shell_elf)
-  [-h/--host] hostname at which the Starling daemon is running (default: localhost)
-  [-p/--port] port on which the Starling daemon is listening (default: 22122)
-  [--log-file] full path to a log file (default: no logging)
-  [--log-level] level at which to log (default: WARN)
+[-q/--queue] name of the Starling queue to read from (default: shell_elf)
+[-h/--host] hostname at which the Starling daemon is running (default: localhost)
+[-p/--port] port on which the Starling daemon is listening (default: 22122)
+[--log-file] full path to a log file (default: no logging)
+[--log-level] level at which to log (default: WARN)
 
 === Stopping the daemon
 
